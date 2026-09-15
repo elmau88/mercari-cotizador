@@ -13,9 +13,14 @@ const PORT = process.env.PORT || 5000;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type']
+}));
 app.use(express.json());
 app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Configuración
 const TIPO_CAMBIO_MERCARI = 0.113;
