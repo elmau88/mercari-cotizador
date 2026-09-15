@@ -2,9 +2,14 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import translate from 'google-translate-api-x';
 
-const TIPO_CAMBIO_FALLBACK = 0.113;
+const TIPO_CAMBIO_FALLBACK = 0.1174;
 const MARGEN_FIJO = 55;
 const CACHE_DURACION_MS = 60 * 60 * 1000; // 1 hora
+
+// Mercari usa una tasa interna más alta que la tasa de mercado pura
+// (compensa spread/comisión de conversión). Este factor ajusta la tasa
+// de mercado en vivo para acercarla a lo que Mercari realmente cobra.
+const FACTOR_AJUSTE_MERCARI = 1.059;
 
 let tasaCache = { valor: null, timestamp: 0 };
 
@@ -17,11 +22,12 @@ async function obtenerTasaCambio() {
 
   try {
     const response = await axios.get('https://open.er-api.com/v6/latest/JPY', { timeout: 5000 });
-    const tasa = response.data?.rates?.MXN;
+    const tasaMercado = response.data?.rates?.MXN;
 
-    if (tasa && tasa > 0) {
-      tasaCache = { valor: tasa, timestamp: ahora };
-      return tasa;
+    if (tasaMercado && tasaMercado > 0) {
+      const tasaAjustada = tasaMercado * FACTOR_AJUSTE_MERCARI;
+      tasaCache = { valor: tasaAjustada, timestamp: ahora };
+      return tasaAjustada;
     }
   } catch (error) {
     // Si la API externa falla, usamos el fallback fijo
