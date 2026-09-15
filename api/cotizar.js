@@ -2,8 +2,33 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import translate from 'google-translate-api-x';
 
-const TIPO_CAMBIO_MERCARI = 0.113;
+const TIPO_CAMBIO_FALLBACK = 0.113;
 const MARGEN_FIJO = 55;
+const CACHE_DURACION_MS = 60 * 60 * 1000; // 1 hora
+
+let tasaCache = { valor: null, timestamp: 0 };
+
+async function obtenerTasaCambio() {
+  const ahora = Date.now();
+
+  if (tasaCache.valor && (ahora - tasaCache.timestamp) < CACHE_DURACION_MS) {
+    return tasaCache.valor;
+  }
+
+  try {
+    const response = await axios.get('https://open.er-api.com/v6/latest/JPY', { timeout: 5000 });
+    const tasa = response.data?.rates?.MXN;
+
+    if (tasa && tasa > 0) {
+      tasaCache = { valor: tasa, timestamp: ahora };
+      return tasa;
+    }
+  } catch (error) {
+    // Si la API externa falla, usamos el fallback fijo
+  }
+
+  return TIPO_CAMBIO_FALLBACK;
+}
 
 async function traducirAlEspanol(texto) {
   try {
@@ -79,13 +104,15 @@ async function obtenerPrecioProducto(url) {
   }
 }
 
-function calcularPrecioFinal(precioJpy) {
-  const precioMxn = precioJpy * TIPO_CAMBIO_MERCARI;
+async function calcularPrecioFinal(precioJpy) {
+  const tipoCambio = await obtenerTasaCambio();
+  const precioMxn = precioJpy * tipoCambio;
   const precioFinal = Math.ceil(precioMxn + MARGEN_FIJO);
   return {
     precio_mxn: precioMxn.toFixed(2),
     precio_final: `$${precioFinal} MXN + EMS`,
-    precio_jpy: precioJpy
+    precio_jpy: precioJpy,
+    tipo_cambio: tipoCambio
   };
 }
 
@@ -124,7 +151,7 @@ export default async function handler(req, res) {
     }
 
     const info = await obtenerPrecioProducto(url);
-    const precioInfo = calcularPrecioFinal(info.precio_jpy);
+    const precioInfo = await calcularPrecioFinal(info.precio_jpy);
 
     return res.status(200).json({
       nombre_producto: info.nombre_producto,
