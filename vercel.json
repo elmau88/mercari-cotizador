@@ -1,6 +1,19 @@
 {
   "version": 2,
-  "buildCommand": "echo 'Building...'",
-  "outputDirectory": "public",
-  "public": true
+  "builds": [
+    {
+      "src": "api/cotizar.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
 }
