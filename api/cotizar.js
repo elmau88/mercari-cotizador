@@ -41,14 +41,28 @@ async function obtenerPrecioProducto(url) {
       if (metaPriceTag) {
         precioJpy = parseInt(metaPriceTag, 10);
       } else {
-        const priceMatch = htmlContent.match(/"price"\s*:\s*(\d+)/);
+        const priceMatch = htmlContent.match(/"price"\s*:\s*"?(\d+)"?/);
         if (priceMatch) {
           precioJpy = parseInt(priceMatch[1], 10);
         }
       }
 
       if (!precioJpy) {
-        throw new Error('No se pudo extraer el precio del producto');
+        const dataMatch = htmlContent.match(/data-price="(\d+)"/);
+        if (dataMatch) {
+          precioJpy = parseInt(dataMatch[1], 10);
+        }
+      }
+
+      if (!precioJpy) {
+        const yenMatch = htmlContent.match(/([0-9]{3,5})\s*(?:円|¥)/);
+        if (yenMatch) {
+          precioJpy = parseInt(yenMatch[1], 10);
+        }
+      }
+
+      if (!precioJpy || precioJpy < 100) {
+        throw new Error('No se pudo extraer el precio del producto. Verifica que el enlace sea válido.');
       }
 
       let nombre = $('meta[property="og:title"]').attr('content') ||
