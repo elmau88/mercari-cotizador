@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYEAN Cotizador Mercari</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
+
+    <style>
+        @font-face {
+            font-family: 'NeverMindRounded';
+            font-display: swap;
+            src: url('https://kyean.store/assets/NeverMindRounded-ExtraBold.ttf') format('truetype');
+            font-weight: 800;
+            font-style: normal;
+        }
+    </style>
+
+    <style>
+        /* ============================================
+           VARIABLES KYEAN DESIGN SYSTEM
+           ============================================ */
+        :root {
+            --primary: #d81b60;
+            --primary-light: #fbcfe8;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --bg-warm: #fff7e5;
+            --ok: #16a34a;
+            --debe: #dc2626;
+            --glass-bg: rgba(255, 255, 255, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.9);
+
+            /* Sombras */
+            --shadow-sm: 0 2px 8px rgba(216, 27, 96, 0.08);
+            --shadow-md: 0 4px 16px rgba(216, 27, 96, 0.12);
+            --shadow-lg: 0 8px 32px rgba(216, 27, 96, 0.16);
+        }
+
+        /* ============================================
+           RESET Y BASE
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 3rem 1.5rem;
+            background-image: url('assets/background.png');
+            background-repeat: repeat;
+            background-size: 318px 396px;
+            animation: scrollPattern 20s linear infinite;
+            background-color: #fff7e5;
+        }
+
+        /* ============================================
+           ANIMACIONES KYEAN
+           ============================================ */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes textWave {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        @keyframes shimmer {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        @keyframes slideInFromTop {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes scrollPattern {
+            0% { background-position: 0 0; }
+            100% { background-position: -318px -396px; }
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.05); }
+            50% { transform: scale(1); }
+        }
+
+        /* ============================================
+           LAYOUT PRINCIPAL
+           ============================================ */
+        .container {
+            flex: 1;
+            max-width: 100%;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0 1.5rem;
+        }
+
+        /* ============================================
+           HEADER KYEAN
+           ============================================ */
+        header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        header img {
+            width: 140px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 15px 35px rgba(216, 27, 96, 0.15);
+            border: 4px solid #fff;
+            transition: transform 0.5s ease;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        header img:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+
+        h1 {
+            font-family: 'NeverMindRounded', 'Inter', sans-serif;
+            font-size: 3.5rem;
+            color: var(--primary) !important;
+            letter-spacing: 2px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.2;
+            text-shadow:
+                -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff,
+                -4px 0 0 #fff, 4px 0 0 #fff, 0 -4px 0 #fff, 0 4px 0 #fff,
+                5px 6px 0px rgba(216, 27, 96, 0.25) !important;
+            margin-bottom: 0.5rem;
+        }
+
+        .wave-text {
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .wave-text span {
+            display: inline-block;
+        }
+
+        .wave-text:hover span {
+            animation: textWave 0.8s ease-in-out;
+        }
+
+        @keyframes textWave {
+            0% { transform: translateY(0) scale(1); }
+            30% { transform: translateY(-12px) scale(1.1); color: var(--primary-light); }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        .text-blue {
+            color: #4FC3F7 !important;
+        }
+
+        .subtitle {
+            font-weight: 400;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 0.5rem;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 0.5rem;
+        }
+
+        /* ============================================
+           FORM SECTION
+           ============================================ */
+        .content-wrapper {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-section {
+            animation: fadeIn 0.8s ease-out 0.1s both;
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 0.8rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 0.8rem;
+            flex-direction: row;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 1rem 1.2rem;
+            border: 2px solid var(--primary-light);
+            border-radius: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(216, 27, 96, 0.1);
+            transform: translateY(-2px);
+        }
+
+        input[type="text"]::placeholder {
+            color: var(--text-muted);
+        }
+
+        button {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #c2185b 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: var(--shadow-md);
+            font-family: 'NeverMindRounded', 'Inter', sans-serif;
+        }
+
+        button:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @keyframes rainbow {
+            0% { color: #FF0000; }
+            16.67% { color: #FF7F00; }
+            33.33% { color: #FFFF00; }
+            50% { color: #00FF00; }
+            66.67% { color: #0000FF; }
+            83.33% { color: #4B0082; }
+            100% { color: #9400D3; }
+        }
+
+        button:hover {
+            animation: rainbow 0.6s ease-in-out infinite;
+        }
+
+        .mascota-hover {
+            transition: opacity 0.3s ease, transform 0.3s ease !important;
+        }
+
+        button:hover ~ .mascota-hover,
+        .input-wrapper:hover .mascota-hover {
+            opacity: 1 !important;
+            transform: translateY(-10px) !important;
+        }
+
+        /* ============================================
+           ERROR MESSAGE
+           ============================================ */
+        .error {
+            display: none;
+            padding: 0.8rem 1rem;
+            background: rgba(220, 38, 38, 0.08);
+            border: 2px solid var(--debe);
+            border-radius: 16px;
+            color: var(--debe);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+            animation: slideInFromTop 0.4s ease-out;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        /* ============================================
+           LOADING STATE
+           ============================================ */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 1rem;
+            border: 4px solid var(--primary-light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* ============================================
+           RESULTS SECTION
+           ============================================ */
+        .results {
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .result-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 1.2rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 0.8rem;
+            transition: all 0.3s ease-out;
+        }
+
+        .result-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .result-item {
+            margin-bottom: 0.6rem;
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .result-value.highlight {
+            font-size: 2.4rem;
+            color: var(--primary);
+            animation: bounce 0.6s ease-out;
+        }
+
+        .result-value.ems {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ============================================
+           BREAKDOWN (detalles internos)
+           ============================================ */
+        .breakdown {
+            background: rgba(216, 27, 96, 0.04);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        .breakdown-row:last-child {
+            margin-bottom: 0;
+            border-top: 2px solid var(--primary-light);
+            padding-top: 0.6rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* ============================================
+           ACTION BUTTONS
+           ============================================ */
+        .action-buttons {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+            flex-direction: column;
+        }
+
+        .action-buttons button {
+            flex: 1;
+            padding: 0.8rem 1.2rem;
+            font-size: 0.85rem;
+        }
+
+        .copy-button {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #f8bbd0 100%);
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .copy-button:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ============================================
+           INFO BOX
+           ============================================ */
+        .info-box {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--primary-light);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-top: 0.8rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            animation: fadeIn 0.8s ease-out 0.3s both;
+        }
+
+        .info-box strong {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .info-steps {
+            margin-top: 0.8rem;
+            padding-left: 1.5rem;
+        }
+
+        .info-steps li {
+            margin-bottom: 0.4rem;
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            header img {
+                width: 120px;
+                height: 120px;
+            }
+
+            h1 {
+                font-size: clamp(1.1rem, 5.5vw, 2.2rem) !important;
+            }
+
+            .subtitle {
+                font-size: 0.95rem;
+            }
+
+            .result-card {
+                padding: 1.5rem;
+            }
+
+            .result-value.highlight {
+                font-size: 2rem;
+            }
+
+            .input-wrapper {
+                flex-direction: column;
+            }
+
+            button {
+                padding: 0.9rem 1.5rem;
+                width: 100%;
+            }
+
+            [style*="display: flex"][style*="gap: 1rem"] {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem 1rem;
+            }
+
+            header img {
+                width: 100px;
+                height: 100px;
+                margin-bottom: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 0.85rem;
+            }
+
+            .result-value.highlight {
+                font-size: 1.8rem;
+            }
+
+            .result-value {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER KYEAN -->
+        <header id="intro-header">
+            <img src="assets/logo-kyean.webp" alt="K-Yean Logo" width="280" height="280" />
+            <h1 class="wave-text">
+                <span style="animation-delay: 0.0s;">M</span><span style="animation-delay: 0.05s;">e</span><span style="animation-delay: 0.1s;">r</span><span style="animation-delay: 0.15s;">c</span><span style="animation-delay: 0.2s;">a</span><span style="animation-delay: 0.25s;">r</span><span style="animation-delay: 0.3s;">i</span>
+                <span class="text-blue" style="animation-delay: 0.35s; display: inline-block;">
+                    <span style="animation-delay: 0.4s;">C</span><span style="animation-delay: 0.45s;">o</span><span style="animation-delay: 0.5s;">t</span><span style="animation-delay: 0.55s;">i</span><span style="animation-delay: 0.6s;">z</span><span style="animation-delay: 0.65s;">a</span><span style="animation-delay: 0.7s;">d</span><span style="animation-delay: 0.75s;">o</span><span style="animation-delay: 0.8s;">r</span>
+                </span>
+            </h1>
+            <p class="subtitle">Precio Final en MXN</p>
+        </header>
+
+        <div class="content-wrapper">
+            <!-- ERROR MESSAGE -->
+            <div class="error" id="error"></div>
+
+        <!-- FORM SECTION -->
+        <div class="form-section">
+            <div class="form-group">
+                <label for="mercariUrl">
+                    <span class="emoji">🔗</span>
+                    Enlace de Mercari
+                </label>
+                <div class="input-wrapper" style="position: relative;">
+                    <input
+                        type="text"
+                        id="mercariUrl"
+                        placeholder="https://jp.mercari.com/item/m32507046723"
+                        autocomplete="off"
+                    />
+                    <div style="position: relative;">
+                        <button onclick="cotizar()" id="cotizarBtn">Cotizar</button>
+                        <img id="mascota" src="assets/mascota.png" alt="Mascota" class="mascota-hover" style="position: absolute; bottom: 100%; left: 50%; width: 70px; height: auto; opacity: 0; transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; z-index: 10;" />
+                    </div>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.75rem; line-height: 1.4; font-weight: 600;">
+                    ✓ Solo funciona con enlaces: <code style="background: rgba(216, 27, 96, 0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">https://jp.mercari.com/item/m...</code><br>
+                    ✗ No funciona con: <code style="background: rgba(220, 38, 38, 0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">shops/product/</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOADING STATE -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Obteniendo precio...</p>
+        </div>
+
+        <!-- RESULTS -->
+        <div class="results" id="results">
+            <!-- PRECIO Y NOMBRE LADO A LADO -->
+            <div style="display: flex; gap: 1rem; width: 100%; margin-bottom: 1.5rem;">
+                <!-- PRECIO FINAL -->
+                <div class="result-card" style="flex: 1; text-align: center;">
+                    <div class="result-item">
+                        <div class="result-label">💰 Tu Precio Final</div>
+                        <div class="result-value highlight" id="precioFinal">$0.00</div>
+                    </div>
+                </div>
+
+                <!-- INFORMACIÓN DEL PRODUCTO -->
+                <div class="result-card" style="flex: 1; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                    <div class="result-item">
+                        <div class="result-label">📦 Nombre del Producto</div>
+                        <div id="productName" style="font-size: 1rem; font-weight: 600; color: var(--text-main); margin-bottom: 0; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; line-height: 1.5; min-height: 80px; display: flex; align-items: center; justify-content: center;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOTO DEL PRODUCTO -->
+            <div style="margin-bottom: 0.8rem;">
+                <img id="productImage" src="" alt="Producto" style="width: 100%; border-radius: 16px; box-shadow: 0 4px 16px rgba(216, 27, 96, 0.12); max-height: 300px; object-fit: cover;">
+            </div>
+
+            <!-- DISCLAIMER -->
+            <div class="info-box" style="background: rgba(220, 38, 38, 0.06); border-color: rgba(220, 38, 38, 0.3); margin-top: 0.8rem; animation: heartbeat 2s ease-in-out infinite;">
+                <strong style="color: var(--debe);">⚠️ Nota importante:</strong><br>
+                Este precio es solo <strong>orientativo</strong>. Si te parece bien, por favor <strong>cotiza nuevamente en nuestro grupo oficial de WhatsApp</strong> para confirmar disponibilidad y precio actual.
+            </div>
+        </div>
+
+            <!-- INFO BOX -->
+            <div class="info-box">
+                <strong>✨ Cómo funciona:</strong>
+                <ol class="info-steps">
+                    <li>Pega el enlace de tu producto Mercari</li>
+                    <li>Haz clic en "Cotizar"</li>
+                    <li>¡Obtén tu precio de venta al instante!</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer-mobile-fix" style="position: relative; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 2rem; opacity: 0.75; z-index: 10;">
+            <div style="position: relative; width: 100%; max-width: 250px;">
+                <img src="assets/footer.webp" alt="Footer decorativo" width="400" height="109" loading="lazy" decoding="async" style="width: 100%; height: auto; display: block;">
+                <div style="position: absolute; top: 18%; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                    <p style="font-family: 'NeverMindRounded', sans-serif; font-size: 0.8rem; color: var(--primary); font-weight: 800; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0px 2px 5px rgba(216, 27, 96, 0.15);">
+                        Made with ❤️ by Mauri
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:5000';
+
+        async function cotizar() {
+            const url = document.getElementById('mercariUrl').value.trim();
+            const errorDiv = document.getElementById('error');
+            const loadingDiv = document.getElementById('loading');
+            const resultsDiv = document.getElementById('results');
+            const cotizarBtn = document.getElementById('cotizarBtn');
+
+            // Limpiar errores
+            errorDiv.classList.remove('show');
+            errorDiv.textContent = '';
+
+            // Validar
+            if (!url) {
+                mostrarError('Por favor ingresa un enlace de Mercari');
+                return;
+            }
+
+            if (!url.includes('mercari.com')) {
+                mostrarError('❌ El enlace debe ser de Mercari (mercari.com)');
+                return;
+            }
+
+            // Validar que sea Mercari Japón (jp.mercari.com)
+            if (!url.includes('jp.mercari.com')) {
+                mostrarError('❌ Lo siento, solo cotizo Mercari Japón.<br><br>✓ Solo funciona con: <code style="background: rgba(216, 27, 96, 0.08); padding: 4px 8px; border-radius: 4px;">https://jp.mercari.com/item/m...</code><br><br>Por favor usa enlaces de Japón.');
+                return;
+            }
+
+            // Validar que sea tipo /item/
+            if (!url.includes('/item/')) {
+                mostrarError('❌ Este enlace no es compatible.<br><br>✓ Solo funciona con: <code style="background: rgba(216, 27, 96, 0.08); padding: 4px 8px; border-radius: 4px;">https://jp.mercari.com/item/m...</code><br><br>Si tienes un enlace de Mercari Shops, por favor envíalo al grupo de WhatsApp.');
+                return;
+            }
+
+            // Mostrar loading
+            loadingDiv.classList.add('show');
+            resultsDiv.classList.remove('show');
+            cotizarBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/cotizar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al procesar');
+                }
+
+                mostrarResultados(data);
+            } catch (error) {
+                mostrarError(error.message || 'Error al conectar con el servidor');
+            } finally {
+                loadingDiv.classList.remove('show');
+                cotizarBtn.disabled = false;
+            }
+        }
+
+        function mostrarResultados(data) {
+            const resultsDiv = document.getElementById('results');
+
+            // Precio final (ya viene formateado del servidor)
+            document.getElementById('precioFinal').textContent = data.precio_final;
+
+            // Información del producto
+            document.getElementById('productName').textContent = data.nombre_producto || 'N/A';
+
+            // Foto del producto
+            if (data.foto) {
+              document.getElementById('productImage').src = data.foto;
+              document.getElementById('productImage').style.display = 'block';
+            } else {
+              document.getElementById('productImage').style.display = 'none';
+            }
+
+            // Guardar para copiar
+            window.precioParaCopiar = data.precio_final;
+
+            resultsDiv.classList.add('show');
+        }
+
+        function mostrarError(mensaje) {
+            const errorDiv = document.getElementById('error');
+
+            // Usar innerHTML para permitir HTML en los mensajes
+            errorDiv.innerHTML = mensaje;
+
+            errorDiv.classList.add('show');
+        }
+
+        function copiarResultado() {
+            if (window.precioParaCopiar) {
+                navigator.clipboard.writeText(window.precioParaCopiar).then(() => {
+                    alert('✓ Precio copiado: ' + window.precioParaCopiar);
+                }).catch(() => {
+                    alert('Error al copiar');
+                });
+            }
+        }
+
+        // Enter para cotizar
+        document.getElementById('mercariUrl').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') cotizar();
+        });
+
+        // Mostrar mascota al hover del botón
+        const cotizarBtn = document.getElementById('cotizarBtn');
+        const mascota = document.getElementById('mascota');
+        const inputWrapper = document.querySelector('.input-wrapper');
+
+        cotizarBtn.addEventListener('mouseenter', () => {
+            mascota.style.opacity = '1';
+            mascota.style.left = '50%';
+            mascota.style.marginLeft = '-35px';
+        });
+
+        cotizarBtn.addEventListener('mouseleave', () => {
+            mascota.style.opacity = '0';
+        });
+
+        inputWrapper.addEventListener('mouseleave', () => {
+            mascota.style.opacity = '0';
+        });
+    </script>
+</body>
+</html>

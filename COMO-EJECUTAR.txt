@@ -1,0 +1,127 @@
+╔════════════════════════════════════════════════╗
+║   COTIZADOR MERCARI v2.0                       ║
+║   Guía Rápida de Ejecución                     ║
+╚════════════════════════════════════════════════╝
+
+OPCIÓN 1: EJECUCIÓN SUPER RÁPIDA ⚡
+═════════════════════════════════════
+
+1. Haz doble clic en: START.bat
+
+✓ Instala dependencias automáticamente (si es primera vez)
+✓ Inicia el servidor
+✓ Listo en 10 segundos
+
+URL: http://localhost:5000
+
+
+OPCIÓN 2: EJECUCIÓN CON VERIFICACIÓN ✓
+═════════════════════════════════════
+
+1. Haz doble clic en: setup-y-ejecutar.bat
+
+✓ Verifica Node.js está instalado
+✓ Verifica npm está disponible
+✓ Instala dependencias automáticamente
+✓ Verifica archivos necesarios
+✓ Inicia el servidor
+
+URL: http://localhost:5000
+
+
+OPCIÓN 3: EJECUCIÓN MANUAL
+═════════════════════════════════
+
+Si prefieres ejecutar manualmente en PowerShell:
+
+1. Abre PowerShell en esta carpeta
+2. Ejecuta: npm install (solo primera vez)
+3. Ejecuta: npm start
+
+URL: http://localhost:5000
+
+
+REQUISITOS PREVIOS
+══════════════════
+
+✓ Node.js (descargar desde https://nodejs.org)
+✓ npm (viene con Node.js)
+
+Para verificar:
+- Abre PowerShell
+- Escribe: node --version
+- Escribe: npm --version
+
+Si no ve versiones, descarga Node.js
+
+
+PRIMERA VEZ QUE EJECUTAS
+════════════════════════
+
+Paso 1: Haz doble clic en START.bat
+Paso 2: Espera a que instale (puede tardar 1-2 minutos)
+Paso 3: El servidor iniciará automáticamente
+Paso 4: Abre http://localhost:5000 en tu navegador
+
+Las siguientes veces será más rápido
+
+
+DETENER EL SERVIDOR
+════════════════════
+
+En la ventana del servidor:
+- Presiona CTRL+C
+
+O cierra la ventana directamente
+
+
+ARCHIVOS EN ESTA CARPETA
+═════════════════════════
+
+START.bat                    → Iniciador rápido (RECOMENDADO)
+setup-y-ejecutar.bat        → Iniciador con verificación
+run.bat                     → Iniciador minimalista
+iniciar-cotizador-avanzado.bat → Menú interactivo
+
+server.js                   → Código principal del servidor
+mercari-cotizador.html      → Interfaz web
+package.json               → Dependencias
+node_modules/              → Librerías (se crea al instalar)
+
+
+SOLUCIONAR PROBLEMAS
+══════════════════════
+
+❌ "No se reconoce el comando npm"
+   → Descarga Node.js desde: https://nodejs.org
+   → Reinicia tu PC después de instalar
+
+❌ "Puerto 5000 en uso"
+   → Cierra otras aplicaciones
+   → O mata el proceso: taskkill /F /IM node.exe
+
+❌ "La instalación tarda mucho"
+   → Es normal la primera vez (1-2 minutos)
+   → Las siguientes veces es instantáneo
+
+❌ "No puedo acceder a localhost:5000"
+   → Espera a que veas "Ejecutando en http://localhost:5000"
+   → Luego abre en navegador
+
+
+ACCESO RÁPIDO
+══════════════
+
+Navegador: http://localhost:5000
+Pega un URL de Mercari: https://jp.mercari.com/item/m46973798721
+Haz clic en "Cotizar"
+¡Listo! Recibirás el precio final en MXN
+
+
+¿PROBLEMAS?
+════════════
+
+1. Cierra todas las ventanas
+2. Asegúrate Node.js está instalado
+3. Ejecuta START.bat
+4. Si persiste el error, revisa CLAUDE.md o contacta al desarrollador
