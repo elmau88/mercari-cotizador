@@ -1,4 +1,5 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 import translate from 'google-translate-api-x';
 
 const TIPO_CAMBIO_MERCARI = 0.113;
@@ -29,10 +30,11 @@ async function obtenerPrecioProducto(url) {
       throw new Error('URL de Mercari no válida. Use https://jp.mercari.com/item/[ID]');
     }
 
-    // Usar Puppeteer para cargar JavaScript
+    // Usar Puppeteer con Chromium optimizado para serverless
     browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: 'new'
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless
     });
 
     const page = await browser.newPage();
