@@ -1,5 +1,5 @@
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
 import translate from 'google-translate-api-x';
 
 const TIPO_CAMBIO_MERCARI = 0.113;
@@ -18,7 +18,6 @@ async function traducirAlEspanol(texto) {
 }
 
 async function obtenerPrecioProducto(url) {
-  let browser = null;
   try {
     if (url.includes('/shops/product/') || url.includes('/shops/')) {
       throw new Error(
@@ -30,87 +29,52 @@ async function obtenerPrecioProducto(url) {
       throw new Error('URL de Mercari no válida. Use https://jp.mercari.com/item/[ID]');
     }
 
-    // Usar Puppeteer con Chromium optimizado para serverless
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless
+    const response = await axios.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8'
+      },
+      timeout: 10000
     });
 
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 15000 });
+    const $ = cheerio.load(response.data);
 
-    // Extraer datos con JavaScript
-    const data = await page.evaluate(() => {
-      let precio = null;
-      let nombre = null;
-      let foto = null;
+    // El precio viene en un meta tag con atributo "name", no "property"
+    const precioTag = $('meta[name="product:price:amount"]').attr('content');
+    const precioJpy = precioTag ? parseInt(precioTag, 10) : null;
 
-      // Buscar precio
-      const priceElement = document.querySelector('[data-testid="price"]');
-      if (priceElement) {
-        const priceText = priceElement.textContent.replace(/[^\d]/g, '');
-        precio = parseInt(priceText);
-      }
-
-      if (!precio) {
-        const allText = document.body.innerText;
-        const priceMatch = allText.match(/¥\s*([0-9,]+)/);
-        if (priceMatch) {
-          precio = parseInt(priceMatch[1].replace(/,/g, ''));
-        }
-      }
-
-      // Buscar nombre
-      const titleElement = document.querySelector('h1');
-      if (titleElement) {
-        nombre = titleElement.textContent.trim();
-      }
-
-      if (!nombre) {
-        const metaTitle = document.querySelector('meta[property="og:title"]');
-        if (metaTitle) {
-          nombre = metaTitle.getAttribute('content');
-        }
-      }
-
-      // Buscar imagen
-      const imgElement = document.querySelector('img[alt*="商品"]') || document.querySelector('[data-testid="image"] img');
-      if (imgElement) {
-        foto = imgElement.src;
-      }
-
-      if (!foto) {
-        const metaImage = document.querySelector('meta[property="og:image"]');
-        if (metaImage) {
-          foto = metaImage.getAttribute('content');
-        }
-      }
-
-      return { precio, nombre, foto };
-    });
-
-    await browser.close();
-
-    if (!data.precio || data.precio < 100) {
+    if (!precioJpy || precioJpy < 1) {
       throw new Error('No se pudo extraer el precio del producto. Verifica que el enlace sea válido.');
     }
 
-    let nombreTraducido = data.nombre || 'Producto sin nombre';
-    nombreTraducido = nombreTraducido.split('|')[0].split('-')[0].trim();
-    nombreTraducido = await traducirAlEspanol(nombreTraducido);
+    let nombre = $('meta[property="og:title"]').attr('content') ||
+                 $('title').first().text();
+
+    if (!nombre) {
+      throw new Error('No se pudo extraer el nombre del producto');
+    }
+
+    // Quitar sufijo "by メルカリ" / "by Mercari" y separadores tipo " - メルカリ"
+    nombre = nombre
+      .replace(/\s*by\s*(?:Mercari|メルカリ)\s*$/i, '')
+      .split(' - メルカリ')[0]
+      .split('|')[0]
+      .trim();
+
+    let nombreTraducido = await traducirAlEspanol(nombre);
     nombreTraducido = nombreTraducido.replace(/\s+/g, ' ').trim();
 
+    const foto = $('meta[property="og:image"]').attr('content') ||
+                 $('meta[name="twitter:image"]').attr('content');
+
     return {
-      precio_jpy: data.precio,
+      precio_jpy: precioJpy,
       tipo_producto: 'item',
       nombre_producto: nombreTraducido,
-      foto: data.foto
+      foto: foto
     };
   } catch (error) {
-    if (browser) {
-      await browser.close().catch(() => {});
-    }
     throw new Error(`Error al obtener precio: ${error.message}`);
   }
 }

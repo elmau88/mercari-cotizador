@@ -2,9 +2,8 @@
   "version": 2,
   "functions": {
     "api/cotizar.js": {
-      "memory": 2048,
-      "maxDuration": 30,
-      "runtime": "nodejs20.x"
+      "memory": 512,
+      "maxDuration": 10
     }
   }
 }
