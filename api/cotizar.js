@@ -1,5 +1,4 @@
-import axios from 'axios';
-import * as cheerio from 'cheerio';
+import puppeteer from 'puppeteer';
 import translate from 'google-translate-api-x';
 
 const TIPO_CAMBIO_MERCARI = 0.113;
@@ -18,6 +17,7 @@ async function traducirAlEspanol(texto) {
 }
 
 async function obtenerPrecioProducto(url) {
+  let browser = null;
   try {
     if (url.includes('/shops/product/') || url.includes('/shops/')) {
       throw new Error(
@@ -25,77 +25,90 @@ async function obtenerPrecioProducto(url) {
       );
     }
 
-    if (url.includes('/item/')) {
-      const response = await axios.get(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'es-ES,es;q=0.9',
-          'Referer': 'https://jp.mercari.com/',
-          'DNT': '1',
-          'Connection': 'keep-alive',
-          'Upgrade-Insecure-Requests': '1'
-        },
-        timeout: 10000
-      });
-
-      const htmlContent = response.data;
-      const $ = cheerio.load(htmlContent);
-
-      let precioJpy = null;
-      const metaPriceTag = $('meta[property="product:price:amount"]').attr('content');
-
-      if (metaPriceTag) {
-        precioJpy = parseInt(metaPriceTag, 10);
-      } else {
-        const priceMatch = htmlContent.match(/"price"\s*:\s*"?(\d+)"?/);
-        if (priceMatch) {
-          precioJpy = parseInt(priceMatch[1], 10);
-        }
-      }
-
-      if (!precioJpy) {
-        const dataMatch = htmlContent.match(/data-price="(\d+)"/);
-        if (dataMatch) {
-          precioJpy = parseInt(dataMatch[1], 10);
-        }
-      }
-
-      if (!precioJpy) {
-        const yenMatch = htmlContent.match(/([0-9]{3,5})\s*(?:円|¥)/);
-        if (yenMatch) {
-          precioJpy = parseInt(yenMatch[1], 10);
-        }
-      }
-
-      if (!precioJpy || precioJpy < 100) {
-        throw new Error('No se pudo extraer el precio del producto. Verifica que el enlace sea válido.');
-      }
-
-      let nombre = $('meta[property="og:title"]').attr('content') ||
-                   $('meta[name="twitter:title"]').attr('content') ||
-                   $('title').text();
-
-      if (!nombre) {
-        throw new Error('No se pudo extraer el nombre del producto');
-      }
-
-      nombre = nombre.split('|')[0].split('-')[0].trim();
-      let nombreTraducido = await traducirAlEspanol(nombre);
-      nombreTraducido = nombreTraducido.replace(/\s+/g, ' ').trim();
-
-      let foto = $('meta[property="og:image"]').attr('content');
-
-      return {
-        precio_jpy: precioJpy,
-        tipo_producto: 'item',
-        nombre_producto: nombreTraducido,
-        foto: foto
-      };
-    } else {
+    if (!url.includes('/item/')) {
       throw new Error('URL de Mercari no válida. Use https://jp.mercari.com/item/[ID]');
     }
+
+    // Usar Puppeteer para cargar JavaScript
+    browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      headless: 'new'
+    });
+
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 15000 });
+
+    // Extraer datos con JavaScript
+    const data = await page.evaluate(() => {
+      let precio = null;
+      let nombre = null;
+      let foto = null;
+
+      // Buscar precio
+      const priceElement = document.querySelector('[data-testid="price"]');
+      if (priceElement) {
+        const priceText = priceElement.textContent.replace(/[^\d]/g, '');
+        precio = parseInt(priceText);
+      }
+
+      if (!precio) {
+        const allText = document.body.innerText;
+        const priceMatch = allText.match(/¥\s*([0-9,]+)/);
+        if (priceMatch) {
+          precio = parseInt(priceMatch[1].replace(/,/g, ''));
+        }
+      }
+
+      // Buscar nombre
+      const titleElement = document.querySelector('h1');
+      if (titleElement) {
+        nombre = titleElement.textContent.trim();
+      }
+
+      if (!nombre) {
+        const metaTitle = document.querySelector('meta[property="og:title"]');
+        if (metaTitle) {
+          nombre = metaTitle.getAttribute('content');
+        }
+      }
+
+      // Buscar imagen
+      const imgElement = document.querySelector('img[alt*="商品"]') || document.querySelector('[data-testid="image"] img');
+      if (imgElement) {
+        foto = imgElement.src;
+      }
+
+      if (!foto) {
+        const metaImage = document.querySelector('meta[property="og:image"]');
+        if (metaImage) {
+          foto = metaImage.getAttribute('content');
+        }
+      }
+
+      return { precio, nombre, foto };
+    });
+
+    await browser.close();
+
+    if (!data.precio || data.precio < 100) {
+      throw new Error('No se pudo extraer el precio del producto. Verifica que el enlace sea válido.');
+    }
+
+    let nombreTraducido = data.nombre || 'Producto sin nombre';
+    nombreTraducido = nombreTraducido.split('|')[0].split('-')[0].trim();
+    nombreTraducido = await traducirAlEspanol(nombreTraducido);
+    nombreTraducido = nombreTraducido.replace(/\s+/g, ' ').trim();
+
+    return {
+      precio_jpy: data.precio,
+      tipo_producto: 'item',
+      nombre_producto: nombreTraducido,
+      foto: data.foto
+    };
   } catch (error) {
+    if (browser) {
+      await browser.close().catch(() => {});
+    }
     throw new Error(`Error al obtener precio: ${error.message}`);
   }
 }
