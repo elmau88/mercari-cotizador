@@ -512,6 +512,33 @@
         }
 
         /* ============================================
+           VOLVER AL INICIO
+           ============================================ */
+        .btn-volver-inicio {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.7rem 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--primary-light);
+            border-radius: 999px;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-volver-inicio:hover {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        /* ============================================
            INFO BOX
            ============================================ */
         .info-box {
@@ -701,6 +728,11 @@
                     <li>Haz clic en "Cotizar"</li>
                     <li>¡Obtén tu precio de venta al instante!</li>
                 </ol>
+            </div>
+
+            <!-- VOLVER AL INICIO -->
+            <div style="width: 100%; margin-top: 1.5rem; text-align: center;">
+                <a href="https://kyean.store/" class="btn-volver-inicio">← Volver al inicio</a>
             </div>
         </div>
 
