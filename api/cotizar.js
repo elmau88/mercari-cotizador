@@ -52,7 +52,7 @@ async function obtenerPrecioProducto(url) {
   try {
     if (url.includes('/shops/product/') || url.includes('/shops/')) {
       throw new Error(
-        'No es posible cotizar enlaces de Mercari Shops automáticamente. Por favor, manda el enlace al grupo de WhatsApp y te lo cotizamos manualmente.'
+        'No nos es posible cotizar enlaces de Mercari Shops. El enlace tiene que ser así: https://jp.mercari.com/item/m...'
       );
     }
 
@@ -152,7 +152,7 @@ export default async function handler(req, res) {
 
     if (!url.includes('/item/')) {
       return res.status(400).json({
-        error: 'Este enlace no es compatible. Solo funciona con https://jp.mercari.com/item/m...'
+        error: 'No nos es posible cotizar enlaces de Mercari Shops. El enlace tiene que ser así: https://jp.mercari.com/item/m...'
       });
     }
 
